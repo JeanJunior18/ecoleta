@@ -68,7 +68,7 @@ export default {
       const trx = await knex.transaction();
       
       const ids = await trx('points').insert({
-        image: 'https://www.yohomall.hk/uploadfiles/images/shop/displayImage1Lang1/1092_collectpoint.jpg',
+        image: req.file.filename,
         name,
         email,
         whatsapp,
@@ -80,12 +80,15 @@ export default {
       .returning('id');
 
 
-      const pointItems = items.map((item_id: number) => {
-        return{
-          point_id: ids[0],
-          item_id,
-        }
-      });
+      const pointItems = items
+        .split(',')
+        .map((item:string) => Number(item.trim()))
+        .map((item_id: number) => {
+          return{
+            point_id: ids[0],
+            item_id,
+          }
+        });
 
       await trx('points_items').insert(pointItems);
 
